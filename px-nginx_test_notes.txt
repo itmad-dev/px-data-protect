@@ -1,0 +1,9 @@
+jump box: create local subfolder px-nginx, with testfiles
+
+kubectl exec --stdin --tty -n default px-nginx-test-86967ccfd4-plz82 -- /bin/bash
+
+From px-nginx
+kubectl cp . default/px-nginx-test-86967ccfd4-plz82:/usr/share/nginx -c px-nginx
+
+root@px-nginx-test-86967ccfd4-plz82:/# cd /usr/share/nginx
+root@px-nginx-test-86967ccfd4-plz82:/usr/share/nginx# ls -la
