@@ -1,0 +1,29 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: vsphere-csi-nginx-test
+  labels:
+    app: vsphere-csi-nginx-test
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: vsphere-csi-nginx-test
+  template:
+    metadata:
+      labels:
+        app: vsphere-csi-nginx-test
+    spec:
+      containers:
+        - name: vsphere-csi-nginx
+          image: nginx
+          ports:
+            - containerPort: 80
+              name: "http-server"
+          volumeMounts:
+            - mountPath: "/usr/share/nginx"
+              name: vol-vsphere-01
+      volumes:
+        - name: vol-vsphere-01
+          persistentVolumeClaim:
+           claimName: pvc-vsphere-01
