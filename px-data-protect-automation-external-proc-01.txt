@@ -1,0 +1,100 @@
+##  preliminary overview accessing, using PX-Backup REST API
+
+## overview of locations, functions
+#  use DNS if you can, IP if you must
+#    px-backup-ui
+#      web browser access to PX-Central, PX-Backup
+#      curl http source for rest api access token
+#    px-keycloak-http
+#      web browser access to Keycloak administration
+#    px-backup
+#      web browser access on port 10001 to Swagger UI
+
+
+## deploy PX-Central, PX-Backup to px-backup namespace
+#   Change svc type to LoadBalancer:
+#     px-backup-ui              # PX-Central, PX-Backup ui
+#     px-backup                 # rest api
+#     pxcentral-keycloak-http   # keycloak ui
+
+## increase keycloak SSO session, access token timeouts
+#    pxcentral-keycloak-http
+#      realm settings, sessions
+#        sso session idle 45 minutes
+#        sso session max 1 hour
+#      realm settings, tokens
+#        access token lifespan 30 minutes
+
+## get personal access token
+curl --data 'grant_type=password&client_id=pxcentral&username=admin&password=[REDACTED]&token-duration=365d' http://[LoadBalancer IP for px-backup-ui]/auth/realms/master/protocol/openid-connect/token  | jq -r ".access_token"
+copy and paste token [only]; this is a 3-part token separated by two "."
+
+
+## access and apply personal access token to swagger ui
+#    docExpansion:none to collapse all
+http://[LoadBalancer IP for px-backup]:10001/swagger-ui
+
+
+## Authorize and try BackupLocation GET operation
+scroll down to BackupLocation, to the right click the padlock icon
+  from the Available authorizations dialog box, Value text box, enter:
+  Bearer [one space] then the access token
+  Click Authorize, then Close
+on the right, click Try It Out
+  enter default as the org_id
+  below, click Execute
+the backup locations should be listed in json format
+
+
+## Authorize and try SchedulePolicy POST operation
+#  Overview
+#    Use PX-Backup UI to create sample SchedulePolicy
+#    Use Swagger UI to GET SchedulePolicy and review syntax
+#    Use Swagger UI to POST SchedulePolicy
+#    Use PX-Backup UI to confirm API-generated SchedulePolicy
+
+#  Use PX-Backup UI to create sample SchedulePolicy
+#    From http://[LoadBalancer IP for px-backup-ui]/pxBackup/schedules
+#    In the upper right, click "+"
+#    From the Add Policy dialog box:
+#      Provide a unique policy name
+#      De-select Object lock policy
+#      From the Type dropdownlist, select Daily
+#      Enter [for example to run daily at 2:00AM with default retention, increments]:
+#       2 Hours
+#       0 Minutes
+#       AM
+#       Retain: 7
+#       Incremental Count: 6
+#    Click Create  
+
+#  Use Swagger UI to GET SchedulePolicy and review syntax
+#  get personal access token
+curl --data 'grant_type=password&client_id=pxcentral&username=admin&password=[REDACTED]&token-duration=365d' http://[LoadBalancer IP for px-backup-ui]/auth/realms/master/protocol/openid-connect/token  | jq -r ".access_token"
+# copy and paste token [only]; this is a 3-part token separated by two "."
+
+http://[LoadBalancer IP for px-backup]:10001/swagger-ui
+
+# scroll down to SchedulePolicy, GET /v1/schedulepolicy/{org_id}, to the right click the padlock icon
+  from the Available authorizations dialog box, Value text box, enter:
+  Bearer [one space] then the access token
+  Click Authorize, then Close
+On the right, click Try It Out
+  enter default as the org_id
+  below, click Execute
+The schedule policy(ies) should be listed in json format
+Copy and paste these json results to use as a model to create a new SchedulePolicy
+
+
+#  Use Swagger UI to POST SchedulePolicy
+#  follow the same Swagger UI procedures above to access POST /v1/schedulepolicy
+#  after clicking Try It Out, edit the desired values in the Body 
+#    Note a number of parameters may be optional/not applicable and may be removed
+#  When completed, click Execute
+
+#  Use PX-Backup UI to confirm API-generated SchedulePolicy
+#    From http://[LoadBalancer IP for px-backup-ui]/pxBackup/schedules
+
+
+
+
