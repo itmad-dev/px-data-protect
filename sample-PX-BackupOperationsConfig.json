@@ -1,0 +1,29 @@
+{
+   "credentials":{
+     "credPathFile": "C:\\scripts\\DevEnv\\WINSTON\\config\\winston_px-backup_credentials.xml"
+   },
+    "logs": {
+      "path": "C:\\scripts\\PowerShell\\logs",
+      "fileNamePrelim": "PX-BackupAllBackupsLog_"
+    },
+    "reports": {
+      "path": "c:\\scripts\\PowerShell\\output",
+      "fileNamePrelim": "PX-BackupAllBackupsReport_"
+    },
+    "email": {
+    "smtpServer": "[ip or fqdn of smtp server]",
+    "smtpTo": "[To recipient]",
+    "smtpFrom": "[From recipient]",
+    "messageSubject": "PX-Backup All Backups"
+  },
+    "pxBackupInstanceConfig": {
+    "pxBackupHostClusterName": "[cluster name]",
+    "pxBackupUIUrl": "[LoadBalancerIP of px-backup-ui svc]",
+    "pxBackupRestApiEndpoint": "[LoadBalancerIP of px-backup svc]",
+    "pxBackupRestApiPort": "10001",
+    "pxBackupOrganization": "default"
+    },
+    "keycloakInstanceConfig": {
+    "accessTokenRequestPath": "/auth/realms/master/protocol/openid-connect/token"
+    }
+}
