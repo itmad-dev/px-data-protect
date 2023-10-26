@@ -1,0 +1,81 @@
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: sa-px-backup
+  namespace: default
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: px-backup-all-clusterrole
+rules:
+  - apiGroups: ["*"]
+    resources: ["namespaces", "clusterrolebindings", "persistentvolumes", "clusterroles", "nodes", "storageclasses"]
+    verbs: ["get", "list", "watch", "create"]
+  - apiGroups: ["stork.libopenstorage.org"]
+    resources: ["schedulepolicies"]
+    verbs: ["create", "delete", "deletecollection", "get", "list", "patch", "update", "watch"]
+  - apiGroups: ["stork.libopenstorage.org"] # for controller support
+    resources: ["*"]
+    verbs: ["list", "get", "watch"]
+  - apiGroups: ["snapshot.storage.k8s.io"]
+    resources: ["volumesnapshotclasses"]
+    verbs: ["get", "list"]
+  - apiGroups: ["", "extensions", "apps"]
+    resources: ["*"]
+    verbs: ["*"]
+  - apiGroups: ["batch"]
+    resources:
+    - jobs
+    - cronjobs
+    verbs: ["*"]
+  - apiGroups: ["stork.libopenstorage.org"]
+    resources: ["*"]
+    verbs: ["create", "delete", "deletecollection", "get", "list", "patch", "update", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: px-backup-all-clusterrolebinding
+subjects:
+  - kind: ServiceAccount
+    name: sa-px-backup
+    namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: px-backup-all-clusterrole
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: ks-configmap-role
+  namespace: kube-system
+rules:
+  - apiGroups: [""]
+    resources: ["configmaps"]
+    verbs: ["get", "list"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: ks-configmap-rolebinding
+  namespace: kube-system
+subjects:
+  - kind: ServiceAccount
+    name: sa-px-backup
+    namespace: default
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: ks-configmap-role
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: sa-px-backup-secret
+  namespace: default
+  annotations:
+    kubernetes.io/service-account.name: sa-px-backup
