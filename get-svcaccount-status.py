@@ -1,31 +1,25 @@
-# REQUIREMENTS
-#  logging modules
-#  credentials files
-#  configuration files
-#   logs location
-#   script output location
-#
-# SYNOPSIS
-# Preliminary Kubernetes operations
-#
-# 
-# DESCRIPTION
-# 
-#
-# PARAMETER
-# Mandatory. The full path, file name to a json configuration file containing local environment specific variables for log and report paths, api endpoints/FQDNs, XML credentials file, and SMTP mail object details
+#!/usr/bin/python
 
 from kubernetes import client, config
 
+# declare/use active kubeconfig
 config.load_kube_config()
-v1 = client.CoreV1Api()
-v1Object = client.V1ObjectMeta()
 
+# kubernetes-client for python
+# https://github.com/kubernetes-client/python
+v1 = client.CoreV1Api()
+
+# future use - object metadata details
+# https://github.com/kubernetes-client/python/blob/master/kubernetes/docs/V1ObjectMeta.md
+# v1Object = client.V1ObjectMeta()
+
+# simple function to confirm client api access to cluster
 def getPodsAllNamespaces():
     ret = v1.list_pod_for_all_namespaces(watch=False)
     for i in ret.items:
         print("\t%s\t%s" % (i.metadata.namespace, i.metadata.name))
 
+# get ServiceAccount selective details from hard-coded namespace
 def getServiceAccountsDefaultNamespace():
     serviceAccounts = v1.list_namespaced_service_account(namespace='default')
     for s in serviceAccounts.items:
